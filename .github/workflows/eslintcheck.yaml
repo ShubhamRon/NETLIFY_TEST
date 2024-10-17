@@ -1,13 +1,14 @@
-name: ESLint Check and Deploy Preview
+name: ESLint Check
 
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - main
+  branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   pull-requests: write
+  contents: write
 
 jobs: 
   lint-and-deploy:
@@ -60,10 +61,9 @@ jobs:
         run: npm ci
 
       - name: build Project from React Files
-        run: npm run build
-
-      - name: create _redirects file
-        run: echo "/healthcare/*    /index.html   200" > build/_redirects
+        run: | 
+          CI=false
+          npm run build
 
       - name: install Netlify CLI
         run: npm install netlify-cli@17.10.1 -g
@@ -76,7 +76,7 @@ jobs:
             --site ${{ secrets.SITEID }} \
             --auth ${{ secrets.TOKEN }} \
             --json \
-            --alias "healthcare-${{ github.actor }}" \
+            --alias "userinterface-${{ github.actor }}" \
             > deploy_output.json
 
       - name: Generate URL Preview
